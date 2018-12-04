@@ -6,3 +6,5 @@ description = "Virtual Observatory Simple Image Access 2.0 standard implementati
 license = "GPL-3.0-only"
 
 [dependencies]
+hyper = "0.12"
+url = "1"
