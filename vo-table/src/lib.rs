@@ -503,7 +503,7 @@ impl NullableDataValue {
             }
             DataType::Character => {
                 let chars = s.as_bytes();
-                if chars.len() > 0 {
+                if !chars.is_empty() {
                     Ok(NullableDataValue::Character(chars[0]))
                 } else {
                     Err(Error::CannotParse {
