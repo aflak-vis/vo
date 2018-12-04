@@ -62,7 +62,7 @@ struct Field {
     values: Option<Values>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 enum DataType {
     Logical,
     BitArray,
@@ -94,7 +94,7 @@ struct XType {
 
 #[derive(Debug, Clone, Default)]
 struct Values {
-    null: Option<DataValue>,
+    null: Option<NullableDataValue>,
 }
 
 #[derive(Debug, Clone)]
@@ -128,10 +128,21 @@ enum DataValue {
     Complex64(f64, f64),
 }
 
+#[derive(Debug, Clone)]
+enum NullableDataValue {
+    Byte(u8),
+    Character(u8),
+    UnicodeCharacter(char),
+    Integer16(i16),
+    Integer32(i32),
+    Integer64(i64),
+}
+
 impl VOTable {
     pub fn parse<R: Read>(r: R) -> Result<Self, Error> {
         let parser = ParserConfig::new()
-            .trim_whitespace(true)
+            // Cannot trim whitespaces as white spaces are significant for some string types
+            // .trim_whitespace(true)
             .cdata_to_characters(true)
             .create_reader(r);
 
@@ -306,7 +317,9 @@ impl Field {
                     ..
                 } => match local_name.as_str() {
                     "DESCRIPTION" => field.description = Some(Description::parse(events)?),
-                    "VALUES" => field.values = Some(Values::parse(attributes, events)?),
+                    "VALUES" => if let Some(datatype) = field.datatype {
+                        field.values = Some(Values::parse(datatype, attributes, events)?)
+                    },
                     _ => depth += 1,
                 },
                 EndElement { .. } => {
@@ -324,6 +337,7 @@ impl Field {
 
 impl Values {
     fn parse<R: Read>(
+        datatype: DataType,
         attributes: Vec<OwnedAttribute>,
         events: &mut Events<R>,
     ) -> Result<Self, Error> {
@@ -335,7 +349,7 @@ impl Values {
         } in attributes
         {
             if local_name == "null" {
-                values.null = Some(FromStr::from_str(&value)?);
+                values.null = Some(NullableDataValue::parse(datatype, &value)?);
             }
         }
 
@@ -438,10 +452,63 @@ impl FromStr for XType {
     }
 }
 
-impl FromStr for DataValue {
-    type Err = Error;
-    fn from_str(s: &str) -> Result<Self, Error> {
-        // unimplemented!()
-        Ok(DataValue::Logical(true))
+impl NullableDataValue {
+    fn parse(datatype: DataType, s: &str) -> Result<Self, Error> {
+        match datatype {
+            DataType::Byte => {
+                let b = s.parse().map_err(|_| Error::CannotParse {
+                    got: s.to_owned(),
+                    target: "null",
+                })?;
+                Ok(NullableDataValue::Byte(b))
+            }
+            DataType::Character => {
+                let chars = s.as_bytes();
+                if chars.len() > 0 {
+                    Ok(NullableDataValue::Character(chars[0]))
+                } else {
+                    Err(Error::CannotParse {
+                        got: s.to_owned(),
+                        target: "null",
+                    })
+                }
+            }
+            DataType::UnicodeCharacter => {
+                let mut chars = s.chars();
+                if let Some(c) = chars.next() {
+                    Ok(NullableDataValue::UnicodeCharacter(c))
+                } else {
+                    Err(Error::CannotParse {
+                        got: s.to_owned(),
+                        target: "null",
+                    })
+                }
+            }
+            DataType::Integer16 => {
+                let int = s.parse().map_err(|_| Error::CannotParse {
+                    got: s.to_owned(),
+                    target: "null",
+                })?;
+                Ok(NullableDataValue::Integer16(int))
+            }
+            DataType::Integer32 => {
+                let int = s.parse().map_err(|_| Error::CannotParse {
+                    got: s.to_owned(),
+                    target: "null",
+                })?;
+                Ok(NullableDataValue::Integer32(int))
+            }
+            DataType::Integer64 => {
+                let int = s.parse().map_err(|_| Error::CannotParse {
+                    got: s.to_owned(),
+                    target: "null",
+                })?;
+                Ok(NullableDataValue::Integer64(int))
+            }
+            _ => Err(Error::CannotParse {
+                got: format!("{} as {:?}", s, datatype),
+                target: "null",
+            }),
+        }
     }
 }
