@@ -1,13 +1,8 @@
 [package]
-name = "vo"
+name = "vo-sia"
 version = "0.0.1"
 authors = ["Malik Olivier Boussejra <malik@boussejra.com>"]
-description = "Virtual Observatory standard implementation"
+description = "Virtual Observatory Simple Image Access 2.0 standard implementation"
 license = "GPL-3.0-only"
 
 [dependencies]
-
-[workspace]
-members = [
-    "vo-sia",
-]
