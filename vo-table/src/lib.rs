@@ -54,7 +54,7 @@ struct Field {
     datatype: Option<DataType>,
     arraysize: Option<ArraySize>,
     width: Option<usize>,
-    // precision: Option<usize>,
+    precision: Option<Precision>,
     xtype: Option<XType>,
     unit: Option<String>,
     ucd: Option<String>,
@@ -83,6 +83,14 @@ enum ArraySize {
     Unbounded,
     Variable { max: usize },
     Fixed(usize),
+}
+
+#[derive(Debug, Clone)]
+enum Precision {
+    ///  Number of significant digits after decimal point
+    AfterDecimalPoint(usize),
+    ///  Number of significant figures
+    SignificantFigures(usize),
 }
 
 #[derive(Debug, Clone)]
@@ -289,18 +297,7 @@ impl Field {
                         }
                     })
                 }
-                // Precision uses "Fn"/"En"/"n" syntaxes
-                // "precision" => {
-                //     field.precision = Some(match FromStr::from_str(&value) {
-                //         Ok(precision) => precision,
-                //         Err(e) => {
-                //             return Err(Error::CannotParseAttribute {
-                //                 e: Box::new(e),
-                //                 attribute: "precision",
-                //             })
-                //         }
-                //     })
-                // }
+                "precision" => field.precision = Some(Precision::from_str(&value)?),
                 "xtype" => field.xtype = Some(XType::from_str(&value)?),
                 "unit" => field.unit = Some(value),
                 "ucd" => field.ucd = Some(value),
@@ -439,6 +436,48 @@ impl FromStr for ArraySize {
                     target: "arraysize",
                 }),
             }
+        }
+    }
+}
+
+impl FromStr for Precision {
+    type Err = Error;
+    fn from_str(s: &str) -> Result<Self, Error> {
+        if s.starts_with('E') {
+            let mut split = s.split('E');
+            split.next();
+            if let Some(number) = split.next() {
+                let precision = number.parse().map_err(|_| Error::CannotParse {
+                    got: s.to_owned(),
+                    target: "precision",
+                })?;
+                Ok(Precision::SignificantFigures(precision))
+            } else {
+                Err(Error::CannotParse {
+                    got: s.to_owned(),
+                    target: "precision",
+                })
+            }
+        } else {
+            let number = if s.starts_with('F') {
+                let mut split = s.split('F');
+                split.next();
+                if let Some(number) = split.next() {
+                    number
+                } else {
+                    return Err(Error::CannotParse {
+                        got: s.to_owned(),
+                        target: "precision",
+                    });
+                }
+            } else {
+                s
+            };
+            let precision = number.parse().map_err(|_| Error::CannotParse {
+                got: s.to_owned(),
+                target: "precision",
+            })?;
+            Ok(Precision::AfterDecimalPoint(precision))
         }
     }
 }
