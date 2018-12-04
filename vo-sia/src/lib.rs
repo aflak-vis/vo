@@ -11,7 +11,7 @@ impl<'a> SiaService<'a> {
         url: "http://dc.zah.uni-heidelberg.de/hppunion/q/im/siap.xml",
     };
 
-    pub fn create_query<'k>(&self, pos: (f32, f32)) -> SiaQuery<'a, 'k> {
+    pub fn create_query<'k>(&self, pos: (f64, f64)) -> SiaQuery<'a, 'k> {
         SiaQuery {
             base_url: self.url,
             pos,
@@ -27,8 +27,8 @@ impl<'a> SiaService<'a> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct SiaQuery<'a, 'k> {
     base_url: &'a str,
-    pos: (f32, f32),
-    size: (f32, f32),
+    pos: (f64, f64),
+    size: (f64, f64),
     format: Format,
     intersect: Intersect,
     verbosity: Verbosity,
