@@ -10,4 +10,5 @@ license = "GPL-3.0-only"
 [workspace]
 members = [
     "vo-sia",
+    "vo-table",
 ]
