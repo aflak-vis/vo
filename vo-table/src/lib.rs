@@ -125,7 +125,7 @@ enum DataValue {
     Logical(Option<bool>),
     Bit(bool),
     Byte(u8),
-    Character(u8),
+    Character(char),
     UnicodeCharacter(char),
     Integer16(Option<i16>),
     Integer32(Option<i32>),
@@ -574,7 +574,7 @@ impl Data {
                             if b == 0 {
                                 break;
                             }
-                            cell.v.push(DataValue::Character(b));
+                            cell.v.push(DataValue::Character(b as char));
                         }
                     }
                     DataType::Integer32 => {
