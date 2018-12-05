@@ -25,7 +25,7 @@ pub struct VOTable {
 }
 
 #[derive(Debug, Clone, Default)]
-struct Resource {
+pub struct Resource {
     description: Option<Description>,
     infos: Vec<Info>,
     tables: Vec<Table>,
@@ -36,7 +36,7 @@ struct Resource {
 struct Info {}
 
 #[derive(Debug, Clone, Default)]
-struct Table {
+pub struct Table {
     description: Option<Description>,
     fields: Vec<Field>,
     data: Option<Data>,
@@ -193,6 +193,10 @@ impl VOTable {
         }
         Ok(table)
     }
+
+    pub fn resources(&self) -> &[Resource] {
+        &self.resources
+    }
 }
 
 impl Description {
@@ -234,6 +238,10 @@ impl Resource {
             }
         }
         Ok(resource)
+    }
+
+    pub fn tables(&self) -> &[Table] {
+        &self.tables
     }
 }
 
