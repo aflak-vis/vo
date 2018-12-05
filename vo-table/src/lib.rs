@@ -1,3 +1,4 @@
+extern crate base64;
 extern crate xml;
 
 use std::error;
@@ -440,8 +441,45 @@ impl Data {
                 got: "encoding is missing".to_owned(),
                 target: "BINARY > STREAM",
             })?;
+
+        let mut depth = 0;
+        let mut some_input = None;
+        while let Some(event) = events.next() {
+            match event? {
+                Characters(input) => some_input = Some(input),
+                StartElement { .. } => depth += 1,
+                EndElement { .. } => {
+                    depth -= 1;
+                    if depth == -1 {
+                        break;
+                    }
+                }
+                _ => (),
+            }
+        }
+
         let bytes = match encoding.value.as_str() {
-            "base64" => vec![0u8; 2],
+            "base64" => if let Some(input) = some_input {
+                // We need to strip spaces and newlines from input before decoding it
+                let mut stripped_input = String::with_capacity(input.len());
+                for chunk in input.split_whitespace() {
+                    stripped_input.push_str(chunk);
+                }
+                match base64::decode(&stripped_input) {
+                    Ok(bytes) => bytes,
+                    Err(e) => {
+                        return Err(Error::CannotParse {
+                            got: format!("{}", e),
+                            target: "BINARY > STREAM",
+                        })
+                    }
+                }
+            } else {
+                return Err(Error::CannotParse {
+                    got: format!("No input defined in STREAM!"),
+                    target: "BINARY > STREAM",
+                });
+            },
             encoding => {
                 return Err(Error::CannotParse {
                     got: format!("Cannot parse encoding {}", encoding),
@@ -449,7 +487,7 @@ impl Data {
                 })
             }
         };
-        println!("{}", encoding.value);
+        println!("{:?}", bytes);
         unimplemented!()
     }
 }

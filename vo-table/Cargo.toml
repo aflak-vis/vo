@@ -5,3 +5,4 @@ authors = ["Malik Olivier Boussejra <malik@boussejra.com>"]
 
 [dependencies]
 xml-rs = "0.8"
+base64 = "0.10"
