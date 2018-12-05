@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='utf-8'?>
+<VOTABLE version="1.3" xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.3.xsd"><DESCRIPTION>
+GAVO's historical photographic plate archive (GHHPA) is a
+collection of various digitized historical photographic
+plates.  It currently exposes:
+
+* the scans of plates of selected Kapteyn special fields obtained
+  at Potsdam
+* the Palomar-Leiden Trojan surveys, 1960-1977,
+* a collection of plates obtained at Boyden Station, South Africa, 
+  kept at various German observatories.
+
+Other plate collections kept by GAVO include the Heidelberg
+Digitized Astronomical Plates HDAP,
+ivo://org.gavo.dc/lswscans/res/positions/siap, and the APPLAUSE
+database from Potsdam.</DESCRIPTION><RESOURCE type="results"><INFO name="queryPars" value="(%(siaarea0)s &amp;&amp; coverage) AND (mime IN %(format0)s)">{'_sdec': 1.0, '_sra': 1.0, '_dec': -59.6844592879577, 'format0':
+frozenset([u'image/fits',
+u'application/x-votable+xml;content=datalink', u'image/jpeg']),
+'siaarea0': &lt;pgsphere PositionInterval Unknown 160.2741679348
+-60.184459288 162.2553004618 -59.184459288&gt;, '_ra': 161.2647341982576}</INFO><INFO name="QUERY_STATUS" value="OK"></INFO><INFO name="standardID" value="ivo://ivoa.net/std/sia">Written by DaCHS 1.0.1 SIAPRenderer</INFO><INFO name="citation" ucd="meta.bib" value="http://dc.zah.uni-heidelberg.de/tableinfo/hppunion.main">For advice on how to cite the resource(s) that contributed to this result, see http://dc.zah.uni-heidelberg.de/tableinfo/hppunion.main</INFO><COOSYS ID="system" system="ICRS"/><TABLE name="ndlhsasaduha"><GROUP utype="stc:CatalogEntryLocation"><PARAM arraysize="*" datatype="char" name="CoordFlavor" utype="stc:AstroCoordSystem.SpaceFrame.CoordFlavor" value="SPHERICAL"/><PARAM arraysize="*" datatype="char" name="CoordRefFrame" utype="stc:AstroCoordSystem.SpaceFrame.CoordRefFrame" value="ICRS"/><PARAM arraysize="*" datatype="char" name="TimeScale" utype="stc:AstroCoordSystem.TimeFrame.TimeScale" value="TT"/><PARAM arraysize="*" datatype="char" name="URI" utype="stc:DataModel.URI" value="http://www.ivoa.net/xml/STC/stc-v1.30.xsd"/><FIELDref ref="coverage" utype="stc:AstroCoordArea.Polygon"/><FIELDref ref="bandpassHi" utype="stc:AstroCoordArea.SpectralInterval.HiLimit"/><FIELDref ref="bandpassLo" utype="stc:AstroCoordArea.SpectralInterval.LoLimit"/><FIELDref ref="centerAlpha" utype="stc:AstroCoords.Position2D.Value2.C1"/><FIELDref ref="centerDelta" utype="stc:AstroCoords.Position2D.Value2.C2"/><FIELDref ref="bandpassRefval" utype="stc:AstroCoords.Spectral.Value"/><FIELDref ref="dateObs" utype="stc:AstroCoords.Time.TimeInstant"/></GROUP><FIELD ID="accref" arraysize="*" datatype="char" name="accref" ucd="VOX:Image_AccessReference" utype="Access.Reference"><DESCRIPTION>Access key for the data</DESCRIPTION></FIELD><FIELD ID="mime" arraysize="*" datatype="char" name="mime" ucd="VOX:Image_Format" utype="Access.Format"><DESCRIPTION>MIME type of the file served</DESCRIPTION></FIELD><FIELD ID="accsize" datatype="int" name="accsize" ucd="VOX:Image_FileSize" unit="byte" utype="Access.Size"><DESCRIPTION>Size of the data in bytes</DESCRIPTION><VALUES null="-1"></VALUES></FIELD><FIELD ID="centerAlpha" datatype="double" name="centerAlpha" ref="system" ucd="POS_EQ_RA_MAIN" unit="deg"><DESCRIPTION>Approximate center of image, RA</DESCRIPTION></FIELD><FIELD ID="centerDelta" datatype="double" name="centerDelta" ref="system" ucd="POS_EQ_DEC_MAIN" unit="deg"><DESCRIPTION>Approximate center of image, Dec</DESCRIPTION></FIELD><FIELD ID="imageTitle" arraysize="*" datatype="char" name="imageTitle" ucd="VOX:Image_Title"><DESCRIPTION>Synthetic name of the image</DESCRIPTION></FIELD><FIELD ID="instId" arraysize="*" datatype="char" name="instId" ucd="INST_ID"><DESCRIPTION>Identifier of the originating instrument</DESCRIPTION></FIELD><FIELD ID="dateObs" datatype="double" name="dateObs" ref="system" ucd="VOX:Image_MJDateObs" unit="d" xtype="mjd"><DESCRIPTION>Epoch at midpoint of observation</DESCRIPTION></FIELD><FIELD ID="nAxes" datatype="int" name="nAxes" ucd="VOX:Image_Naxes"><DESCRIPTION>Number of axes in data</DESCRIPTION><VALUES null="-1"></VALUES></FIELD><FIELD ID="pixelSize" arraysize="*" datatype="int" name="pixelSize" ucd="VOX:Image_Naxis" unit="pix"><DESCRIPTION>Number of pixels along each of the axes</DESCRIPTION></FIELD><FIELD ID="pixelScale" arraysize="*" datatype="double" name="pixelScale" ucd="VOX:Image_Scale" unit="deg/pix"><DESCRIPTION>The pixel scale on each image axis</DESCRIPTION></FIELD><FIELD ID="refFrame" arraysize="*" datatype="char" name="refFrame" ucd="VOX:STC_CoordRefFrame"><DESCRIPTION>Coordinate system reference frame</DESCRIPTION></FIELD><FIELD ID="wcs_equinox" datatype="float" name="wcs_equinox" ucd="VOX:STC_CoordEquinox" unit="yr"><DESCRIPTION>Equinox of the given coordinates</DESCRIPTION></FIELD><FIELD ID="wcs_projection" arraysize="3" datatype="char" name="wcs_projection" ucd="VOX:WCS_CoordProjection"><DESCRIPTION>FITS WCS projection type</DESCRIPTION></FIELD><FIELD ID="wcs_refPixel" arraysize="*" datatype="double" name="wcs_refPixel" ucd="VOX:WCS_CoordRefPixel" unit="pix"><DESCRIPTION>WCS reference pixel</DESCRIPTION></FIELD><FIELD ID="wcs_refValues" arraysize="*" datatype="double" name="wcs_refValues" ucd="VOX:WCS_CoordRefValue" unit="deg"><DESCRIPTION>World coordinates at WCS reference pixel</DESCRIPTION></FIELD><FIELD ID="wcs_cdmatrix" arraysize="*" datatype="double" name="wcs_cdmatrix" ucd="VOX:WCS_CDMatrix" unit="deg/pix"><DESCRIPTION>FITS WCS CDij matrix</DESCRIPTION></FIELD><FIELD ID="bandpassId" arraysize="*" datatype="char" name="bandpassId" ucd="VOX:BandPass_ID"><DESCRIPTION>Freeform name of the bandpass used</DESCRIPTION></FIELD><FIELD ID="bandpassUnit" arraysize="*" datatype="char" name="bandpassUnit" ucd="VOX:BandPass_Unit"><DESCRIPTION>Unit of bandpass specifications (always m).</DESCRIPTION></FIELD><FIELD ID="bandpassRefval" datatype="double" name="bandpassRefval" ucd="VOX:BandPass_RefValue" unit="m"><DESCRIPTION>Characteristic quantity for the bandpass of the image</DESCRIPTION></FIELD><FIELD ID="bandpassHi" datatype="double" name="bandpassHi" ucd="VOX:BandPass_HiLimit" unit="m"><DESCRIPTION>Upper limit of the bandpass (in BandPass_Unit units)</DESCRIPTION></FIELD><FIELD ID="bandpassLo" datatype="double" name="bandpassLo" ucd="VOX:BandPass_LoLimit" unit="m"><DESCRIPTION>Lower limit of the bandpass (in BandPass_Unit units)</DESCRIPTION></FIELD><FIELD ID="pixflags" arraysize="*" datatype="char" name="pixflags" ucd="VOX:Image_PixFlags"><DESCRIPTION>Flags specifying the processing done (C-original; F-resampled; Z-fluxes valid; X-not resampled; V-for display only</DESCRIPTION></FIELD><FIELD ID="coverage" arraysize="*" datatype="double" name="coverage" unit="deg" xtype="polygon"><DESCRIPTION>Field covered by the image</DESCRIPTION></FIELD><FIELD ID="object" arraysize="*" datatype="char" name="object" ucd="meta.name"><DESCRIPTION>Object being observed, Simbad-resolvable form</DESCRIPTION></FIELD><DATA><BINARY><STREAM encoding="base64">AAAAUGh0dHA6Ly9kYy56YWgudW5pLWhlaWRlbGJlcmcuZGUvZ2V0cHJvZHVjdC9ib3lkZW5kZS9k
+YXRhL2ZpdHMvSEFSMDgxXzAwNjQ1NC5maXRzAAAACmltYWdlL2ZpdHMYCcAAQGQmw2pbwsHATfKP
+KYztswAAACVCb3lkZW4gMTk2Mi0wNC0wOVQxOToxMzoyMCBFdGEgQ2FyaW5hAAAAGjMyLzM2IiBC
+YWtlciBTY2htaWR0IChBREgpQOJweaEvaDsAAAACAAAAAgAAN3gAADd4AAAAAj8qJ9qgsSExPyoz
+QzSZSvsAAAAESUNSU0T6AABUQU4AAAACQMQt8zMzMzNAxEYZmZmZmgAAAAJAZAA45nPwcMBNmhr3
+IQQTAAAABL8qImsO7KznPumtm8cq0zw+6twHI/cFTz8qLOu1NBilAAAACzEwM2EtRCtHRzExAAAA
+AW0+ociqU1A0ID6mJVtZQhCcPp7evWUlyZMAAAAAAAAACEBkgRhx2zoYwE6suzafer1AZIFL6HHn
+VMBNQXyoFeFaQGPT/iZrdIPATTEyTR1PZkBjxID/WriuwE6bhurNqsQAAAAKRXRhIENhcmluYQAA
+AFBodHRwOi8vZGMuemFoLnVuaS1oZWlkZWxiZXJnLmRlL2dldHByb2R1Y3QvYm95ZGVuZGUvZGF0
+YS9maXRzL0hBUjA4MV8wMDY0NzguZml0cwAAAAppbWFnZS9maXRzGAnAAEBkHNXLpeN0wE3WnKfm
+H9wAAAAlQm95ZGVuIDE5NjItMDQtMjZUMTk6MDM6MTkgRXRhIENhcmluYQAAABozMi8zNiIgQmFr
+ZXIgU2NobWlkdCAoQURIKUDicploM5Q8AAAAAgAAAAIAADd4AAA3eAAAAAI/KiroT87kGD8qOW/A
+4LjwAAAABElDUlNE+gAAVEFOAAAAAkC3dfrhR64UQL6XR64UeuEAAAACQGQq5wH9Y8zATcS3+ioM
+oAAAAAS/Kirw5tTYKz7T95SFuFgiPtZVPuc/lng/Kjm0eRBZjAAAAAsxMDNhLUQrR0cxMQAAAAFt
+PqHIqlNQNCA+piVbWUIQnD6e3r1lJcmTAAAAAAAAAAhAZHflML28dcBOjj/17Gz5QGR1ih6o2tvA
+TSMwH94EOEBjyZE1hidXwE0XIS1Bbl9AY7wndgrGV8BOgkPTsUvvAAAACkV0YSBDYXJpbmEAAABQ
+aHR0cDovL2RjLnphaC51bmktaGVpZGVsYmVyZy5kZS9nZXRwcm9kdWN0L2JveWRlbmRlL2RhdGEv
+Zml0cy9IQVIwODFfMDA2NDc5LmZpdHMAAAAKaW1hZ2UvZml0cxgJwABAZBz+Q+lqh8BN1EcSsCkH
+AAAAJUJveWRlbiAxOTYyLTA0LTI2VDE5OjAzOjE5IEV0YSBDYXJpbmEAAAAaMzIvMzYiIEJha2Vy
+IFNjaG1pZHQgKEFESClA4nKZaDOUPAAAAAIAAAACAAA3eAAAN3gAAAACPyoowo5R3z0/KjdBaF3A
+AgAAAARJQ1JTRPoAAFRBTgAAAAJAwoJKPXCj10DCG+9cKPXDAAAAAkBkAD0+FgehwE2aEEZ/xlMA
+AAAEvyolkoMcTAg+42rfJaOrUT7kzT/Z970XPyo24uscQy0AAAAKMTAzYS1FK1JHMQAAAAFtPqdA
+0x24kXA+r4qJ3DdN9T6iHpCO2PZRAAAAAAAAAAhAZHeYhewmRMBOjJc3ibfhQGR2OLb/dDXATSBa
+sYKjVEBjydfS9uKkwE0UbLYjDDtAY7yps9xQ/cBOfkCXQ8h6AAAACkV0YSBDYXJpbmEAAABQaHR0
+cDovL2RjLnphaC51bmktaGVpZGVsYmVyZy5kZS9nZXRwcm9kdWN0L2JveWRlbmRlL2RhdGEvZml0
+cy9IQVIwODFfMDA2NDgxLmZpdHMAAAAKaW1hZ2UvZml0cxgJwABAZB5oN8K/4sBN2s5URk20AAAA
+JUJveWRlbiAxOTYyLTA0LTI3VDE4OjM2OjIyIEV0YSBDYXJpbmEAAAAaMzIvMzYiIEJha2VyIFNj
+aG1pZHQgKEFESClA4nK4zuLMBwAAAAIAAAACAAA3eAAAN3gAAAACPyopMjmfRDo/KjVo9hZP1gAA
+AARJQ1JTRPoAAFRBTgAAAAJAvUEeuFHrhUC4rCFHrhR7AAAAAkBkI4/4fon8wE3HA7zbFaQAAAAE
+PyoqCPk0Gh++0zLvYelRV77V0IU+x9Spvyo1eiQiN/0AAAAJSUlhLU8rVUcyAAAAAW0+mNSNNYgi
+Iz6aLCYjqyrnPpbRJ9BTlP0AAAAAAAAACEBjypN58gG4wE0cr2QKM9FAY75vBtWuA8BOhvjHbHWP
+QGR6CEcEoKHATpHxgX9lskBkdu+Ta8qbwE0mbBu320AAAAAKRXRhIENhcmluYQAAAFBodHRwOi8v
+ZGMuemFoLnVuaS1oZWlkZWxiZXJnLmRlL2dldHByb2R1Y3QvYm95ZGVuZGUvZGF0YS9maXRzL0hB
+UjA4MV8wMDY0OTguZml0cwAAAAppbWFnZS9maXRzGAnAAEBkHMpih5sWwE3aCQoQZbQAAAAlQm95
+ZGVuIDE5NjItMDUtMDJUMTc6NDg6MzkgRXRhIENhcmluYQAAABozMi8zNiIgQmFrZXIgU2NobWlk
+dCAoQURIKUDic1e/bl1FAAAAAgAAAAIAADd4AAA3eAAAAAI/KinvNCI95T8qNQp41NMBAAAABElD
+UlNE+gAAVEFOAAAAAkDBfij1wo9cQMWmAAAAAAAAAAACQGQ0Pshrel7ATkB+DRd72QAAAAQ/KilL
+/rEgdL57M8HD1tbmvrCSXM8yJsK/KjYDlIF5NAAAAAVJSWEtTwAAAAFtPpuDvxHOM6o+oMb3oLXt
+jT6W0SfQU5T9AAAAAAAAAAhAY8fSOjp8CsBNHlxZpiqrQGO982VWI3nAToiihVQrX0BkeYxtDaPN
+wE6OxfSPhtpAZHQo/NFgv8BNI0ev3BxlAAAACkV0YSBDYXJpbmEAAABQaHR0cDovL2RjLnphaC51
+bmktaGVpZGVsYmVyZy5kZS9nZXRwcm9kdWN0L2JveWRlbmRlL2RhdGEvZml0cy9IQVIwODFfMDA2
+NTA3LmZpdHMAAAAKaW1hZ2UvZml0cxgJwABAZB0w6M4CzsBN17aAAfxMAAAAJUJveWRlbiAxOTYy
+LTA1LTAzVDE3OjEwOjQzIEV0YSBDYXJpbmEAAAAaMzIvMzYiIEJha2VyIFNjaG1pZHQgKEFESClA
+4nN256HxgAAAAAIAAAACAAA3eAAAN3gAAAACPyoqxfO3E8o/KjS0kplKPgAAAARJQ1JTRPoAAFRB
+TgAAAAJArGDmZmZmZkC2i2ZmZmZmAAAAAkBj8dTU1254wE2zwEHFWHUAAAAEPyoqZ3Z1lvW+2kXS
+eFeHgL7a8F1T+spSvyos0fAiPGsAAAAFSUlhLU8AAAABbT6bg78RzjOqPqDG96C17Y0+ltEn0FOU
+/QAAAAAAAAAIQGPIE5V+TZPATRyeiPsWtkBjvo4eMMsMwE6G8ZRXIKhAZHotaZ7aA8BOi/jdIBkb
+QGR0Qa3SPq3ATSCVUBw1uAAAAApFdGEgQ2FyaW5hAAAAUGh0dHA6Ly9kYy56YWgudW5pLWhlaWRl
+bGJlcmcuZGUvZ2V0cHJvZHVjdC9ib3lkZW5kZS9kYXRhL2ZpdHMvSEFSMDgxXzAwNjUxMC5maXRz
+AAAACmltYWdlL2ZpdHMYCcAAQGQcqYWnnIHATdfjot2CAQAAACVCb3lkZW4gMTk2Mi0wNS0wN1Qx
+NzowNTo1OCBFdGEgQ2FyaW5hAAAAGjMyLzM2IiBCYWtlciBTY2htaWR0IChBREgpQOJz9sycQUIA
+AAACAAAAAgAAN3gAADd4AAAAAj8qLPzjQADMPyo3jreTVLEAAAAESUNSU0T6AABUQU4AAAACQMF/
+2uFHrhRAxdDzMzMzMwAAAAJAZDRCklkzeMBOQHcfs4/qAAAABD8qLsQne4jRPpLHlIohiu++mq75
+Q3WQGL8qOaNLBHFlAAAABUlJYS1PAAAAAW0+m4O/Ec4zqj6gxvegte2NPpbRJ9BTlP0AAAAAAAAA
+CEBjx5F+czhXwE0cgb7gINdAY73cPS6sJMBOh1m5Ki6wQGR5nlfu2J/ATowrxFzCeUBkc8GP3VHD
+wE0hASrJ1I0AAAAKRXRhIENhcmluYQAAAFBodHRwOi8vZGMuemFoLnVuaS1oZWlkZWxiZXJnLmRl
+L2dldHByb2R1Y3QvYm95ZGVuZGUvZGF0YS9maXRzL0hBUjA4MV8wMDY1MjMuZml0cwAAAAppbWFn
+ZS9maXRzGAnAAEBkHvQVDe/fwE3bLej45GwAAAAlQm95ZGVuIDE5NjItMDUtMTBUMTY6NTc6MDcg
+RXRhIENhcmluYQAAABozMi8zNiIgQmFrZXIgU2NobWlkdCAoQURIKUDidFaaQ4IGAAAAAgAAAAIA
+ADd4AAA3eAAAAAI/KiuLhUABiT8qN6h8pTDrAAAABElDUlNE+gAAVEFOAAAAAkC/WDCj1wo9QLg0
+ZmZmZmYAAAACQGQq6ht6A/3ATcS2jn4w0wAAAAQ/Kisb2fKcjb7SNxQFRu8DvtWLIqKIJeK/Kjry
+TOygWgAAAAoxMDNhLUYrUkcxAAAAAW0+p0DTHbiRcD6vioncN031PqIekI7Y9lEAAAAAAAAACEBj
+yzNcYtRhwE0ccSBvmE9AY75Ybj3gX8BOhp9jeVPNQGR6P1cMwQ7ATpLfNn7DFUBkd2wNUJCQwE0n
+CrM5mLAAAAAKRXRhIENhcmluYQ==
+</STREAM></BINARY></DATA></TABLE></RESOURCE></VOTABLE>

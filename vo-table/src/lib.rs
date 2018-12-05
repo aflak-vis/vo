@@ -116,7 +116,7 @@ struct Row {
 }
 
 #[derive(Debug, Clone)]
-enum Cell {
+pub enum Cell {
     Logical(Vec<Option<bool>>),
     Bit(Vec<bool>),
     Byte(Vec<u8>),
@@ -308,6 +308,31 @@ impl Table {
             }
         }
         Ok(table)
+    }
+
+    pub fn rows(&self) -> Option<impl Iterator<Item = RowRef<'_>>> {
+        let fields = &self.fields;
+        self.data
+            .as_ref()
+            .map(|data| data.rows.iter().map(move |row| RowRef { fields, row }))
+    }
+}
+
+pub struct RowRef<'a> {
+    fields: &'a [Field],
+    row: &'a Row,
+}
+
+impl<'a> RowRef<'a> {
+    pub fn get_by_ucd(&self, ucd: &str) -> Option<&Cell> {
+        for (cell, field) in self.row.cells.iter().zip(self.fields) {
+            if let Some(check_ucd) = &field.ucd {
+                if check_ucd == ucd {
+                    return Some(cell);
+                }
+            }
+        }
+        None
     }
 }
 
