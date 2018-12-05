@@ -1,17 +1,16 @@
 extern crate base64;
+extern crate byteorder;
 extern crate xml;
 
 use std::error;
-use std::io::Read;
+use std::io::{Cursor, Read};
 use std::str::FromStr;
 
+use byteorder::{BigEndian, ReadBytesExt};
 use xml::{
     attribute::OwnedAttribute,
     name::OwnedName,
-    reader::{
-        self, Events,
-        XmlEvent::{self, *},
-    },
+    reader::{self, Events, XmlEvent::*},
     ParserConfig,
 };
 
@@ -79,7 +78,7 @@ enum DataType {
     Complex64,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 enum ArraySize {
     Unbounded,
     Variable { max: usize },
@@ -111,12 +110,12 @@ struct Data {
     rows: Vec<Row>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 struct Row {
     cells: Vec<Cell>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 struct Cell {
     v: Vec<DataValue>,
 }
@@ -124,7 +123,7 @@ struct Cell {
 #[derive(Debug, Clone, PartialEq)]
 enum DataValue {
     Logical(bool),
-    BitArray(Vec<u8>),
+    Bit(bool),
     Byte(u8),
     Character(u8),
     UnicodeCharacter(char),
@@ -335,6 +334,15 @@ impl Field {
         }
         Ok(field)
     }
+
+    // Return None if variable length, some length otherwise (in number of records).
+    fn len(&self) -> Option<usize> {
+        match self.arraysize {
+            Some(ArraySize::Fixed(max)) => Some(max),
+            Some(_) => None,
+            None => Some(1),
+        }
+    }
 }
 
 impl Values {
@@ -487,8 +495,81 @@ impl Data {
                 })
             }
         };
+
+        let mut bytes = Cursor::new(bytes);
         println!("{:?}", bytes);
-        unimplemented!()
+        let mut data = Data::default();
+        'end: loop {
+            let mut row = Row::default();
+            for field in fields {
+                let mut cell = Cell::default();
+                let len = if let Some(len) = field.len() {
+                    len
+                } else {
+                    match bytes.read_i32::<BigEndian>() {
+                        Ok(len) => {
+                            println!("Length: {}", len);
+                            assert!(len >= 0, "Length must bust be positive");
+                            len as usize
+                        }
+                        Err(_) => break 'end,
+                    }
+                };
+                match field.datatype.ok_or_else(|| Error::CannotParse {
+                    got: format!("Cannot parse field {:?}. Missing datatype", field.name),
+                    target: "BINARY > STREAM",
+                })? {
+                    DataType::Byte => {
+                        let mut buf = vec![0; len];
+                        bytes.read_exact(&mut buf).expect("No read error");
+                        for b in buf {
+                            cell.v.push(DataValue::Byte(b));
+                        }
+                    }
+                    DataType::Character => {
+                        let mut buf = vec![0; len];
+                        bytes.read_exact(&mut buf).expect("No read error");
+                        for b in buf {
+                            if b == 0 {
+                                break;
+                            }
+                            cell.v.push(DataValue::Character(b));
+                        }
+                    }
+                    DataType::Integer32 => {
+                        let mut buf = vec![0; len];
+                        bytes
+                            .read_i32_into::<BigEndian>(&mut buf)
+                            .expect("No read error");
+                        for int in buf {
+                            cell.v.push(DataValue::Integer32(int));
+                        }
+                    }
+                    DataType::Float32 => {
+                        let mut buf = vec![0.0; len];
+                        bytes
+                            .read_f32_into::<BigEndian>(&mut buf)
+                            .expect("No read error");
+                        for f in buf {
+                            cell.v.push(DataValue::Float32(f));
+                        }
+                    }
+                    DataType::Float64 => {
+                        let mut buf = vec![0.0; len];
+                        bytes
+                            .read_f64_into::<BigEndian>(&mut buf)
+                            .expect("No read error");
+                        for f in buf {
+                            cell.v.push(DataValue::Float64(f));
+                        }
+                    }
+                    e => unimplemented!("{:?}", e),
+                }
+                row.cells.push(cell);
+            }
+            data.rows.push(row);
+        }
+        Ok(data)
     }
 }
 
