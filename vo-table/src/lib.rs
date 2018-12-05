@@ -62,7 +62,7 @@ struct Field {
     values: Option<Values>,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum DataType {
     Logical,
     BitArray,
@@ -105,7 +105,7 @@ struct Values {
     null: Option<NullableDataValue>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 struct Data {
     rows: Vec<Row>,
 }
@@ -120,7 +120,7 @@ struct Cell {
     v: Vec<DataValue>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 enum DataValue {
     Logical(bool),
     BitArray(Vec<u8>),
@@ -254,6 +254,10 @@ impl Table {
                         let field = Field::parse(attributes, events)?;
                         table.fields.push(field);
                     }
+                    "DATA" => {
+                        let data = Data::parse(&table.fields, events)?;
+                        table.data = Some(data);
+                    }
                     _ => depth += 1,
                 },
                 EndElement { .. } => {
@@ -364,6 +368,89 @@ impl Values {
             }
         }
         Ok(values)
+    }
+}
+
+impl Data {
+    fn parse<R: Read>(fields: &[Field], events: &mut Events<R>) -> Result<Self, Error> {
+        let mut data = Data::default();
+
+        let mut depth = 0;
+        while let Some(event) = events.next() {
+            match event? {
+                StartElement {
+                    name: OwnedName { local_name, .. },
+                    ..
+                } => match local_name.as_str() {
+                    "TABLEDATA" => unimplemented!("TABLEDATA"),
+                    "FITS" => unimplemented!("FITS"),
+                    "BINARY" => data = Data::parse_binary(fields, events)?,
+                    "BINARY2" => unimplemented!("BINARY2"),
+                    _ => depth += 1,
+                },
+                EndElement { .. } => {
+                    depth -= 1;
+                    if depth == -1 {
+                        break;
+                    }
+                }
+                _ => (),
+            }
+        }
+
+        Ok(data)
+    }
+
+    fn parse_binary<R: Read>(fields: &[Field], events: &mut Events<R>) -> Result<Self, Error> {
+        let mut data = Data::default();
+
+        let mut depth = 0;
+        while let Some(event) = events.next() {
+            match event? {
+                StartElement {
+                    name: OwnedName { local_name, .. },
+                    attributes,
+                    ..
+                } => match local_name.as_str() {
+                    "STREAM" => data = Data::parse_binary_stream(fields, &attributes, events)?,
+                    _ => depth += 1,
+                },
+                EndElement { .. } => {
+                    depth -= 1;
+                    if depth == -1 {
+                        break;
+                    }
+                }
+                _ => (),
+            }
+        }
+
+        Ok(data)
+    }
+
+    fn parse_binary_stream<R: Read>(
+        fields: &[Field],
+        attributes: &[OwnedAttribute],
+        events: &mut Events<R>,
+    ) -> Result<Self, Error> {
+        let encoding = attributes
+            .iter()
+            .find(|attr| attr.name.local_name == "encoding")
+            .ok_or_else(|| Error::CannotParse {
+                got: "encoding is missing".to_owned(),
+                target: "BINARY > STREAM",
+            })?;
+        let bytes = match encoding.value.as_str() {
+            "base64" => vec![0u8; 2],
+            encoding => {
+                return Err(Error::CannotParse {
+                    got: format!("Cannot parse encoding {}", encoding),
+                    target: "BINARY > STREAM",
+                })
+            }
+        };
+        println!("{}", encoding.value);
+        unimplemented!()
     }
 }
 
