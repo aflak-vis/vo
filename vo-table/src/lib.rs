@@ -106,11 +106,11 @@ struct Values {
 
 #[derive(Debug, Clone, Default)]
 struct Data {
-    rows: Vec<Row>,
+    rows: Vec<OwnedRow>,
 }
 
 #[derive(Debug, Clone, Default)]
-struct Row {
+struct OwnedRow {
     cells: Vec<Cell>,
 }
 
@@ -319,7 +319,7 @@ impl Table {
 
 pub struct RowRef<'a> {
     fields: &'a [Field],
-    row: &'a Row,
+    row: &'a OwnedRow,
 }
 
 impl<'a> RowRef<'a> {
@@ -577,7 +577,7 @@ impl Data {
         let mut bytes = Cursor::new(bytes);
         let mut data = Data::default();
         'end: loop {
-            let mut row = Row::default();
+            let mut row = OwnedRow::default();
             for field in fields {
                 let cell;
                 let len = if let Some(len) = field.len() {
