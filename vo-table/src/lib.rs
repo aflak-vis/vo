@@ -2,7 +2,6 @@ extern crate base64;
 extern crate byteorder;
 extern crate xml;
 
-use std::error;
 use std::io::{Cursor, Read};
 use std::str::FromStr;
 
