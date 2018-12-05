@@ -151,6 +151,14 @@ impl SIAResults {
                     .flatten()
             }).flatten()
     }
+
+    pub fn table(&self) -> &VOTable {
+        &self.table
+    }
+
+    pub fn into_table(self) -> VOTable {
+        self.table
+    }
 }
 
 pub struct SIARecord<'a> {
