@@ -16,6 +16,10 @@ impl<'a> SiaService<'a> {
         url: "http://dc.zah.uni-heidelberg.de/hppunion/q/im/siap.xml",
     };
 
+    pub fn new(url: &str) -> SiaService<'_> {
+        SiaService { url }
+    }
+
     pub fn create_query<'k>(&self, pos: (f64, f64)) -> SiaQuery<'a, 'k> {
         SiaQuery {
             base_url: self.url,
@@ -91,6 +95,11 @@ pub enum Verbosity {
 }
 
 impl<'a, 'k> SiaQuery<'a, 'k> {
+    pub fn with_size(mut self, size: (f64, f64)) -> Self {
+        self.size = size;
+        self
+    }
+
     pub fn execute(&self) -> impl Future<Item = SIAResults, Error = Error> {
         let client = Client::new();
         let uri = self.query_url().parse().unwrap();
