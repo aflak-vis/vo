@@ -122,28 +122,47 @@ struct Cell {
 
 #[derive(Debug, Clone, PartialEq)]
 enum DataValue {
-    Logical(bool),
+    Logical(Option<bool>),
     Bit(bool),
     Byte(u8),
     Character(u8),
     UnicodeCharacter(char),
-    Integer16(i16),
-    Integer32(i32),
-    Integer64(i64),
+    Integer16(Option<i16>),
+    Integer32(Option<i32>),
+    Integer64(Option<i64>),
     Float32(f32),
     Float64(f64),
     Complex32(f32, f32),
     Complex64(f64, f64),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 enum NullableDataValue {
-    Byte(u8),
-    Character(u8),
-    UnicodeCharacter(char),
     Integer16(i16),
     Integer32(i32),
     Integer64(i64),
+}
+
+trait Nullable {
+    fn to_nullable(self) -> NullableDataValue;
+}
+
+impl Nullable for i16 {
+    fn to_nullable(self) -> NullableDataValue {
+        NullableDataValue::Integer16(self)
+    }
+}
+
+impl Nullable for i32 {
+    fn to_nullable(self) -> NullableDataValue {
+        NullableDataValue::Integer32(self)
+    }
+}
+
+impl Nullable for i64 {
+    fn to_nullable(self) -> NullableDataValue {
+        NullableDataValue::Integer64(self)
+    }
 }
 
 impl VOTable {
@@ -343,6 +362,14 @@ impl Field {
             None => Some(1),
         }
     }
+
+    fn is_null<T: Nullable>(&self, t: T) -> bool {
+        if let Some(values) = &self.values {
+            values.is_null(t)
+        } else {
+            false
+        }
+    }
 }
 
 impl Values {
@@ -377,6 +404,14 @@ impl Values {
             }
         }
         Ok(values)
+    }
+
+    fn is_null<T: Nullable>(&self, t: T) -> bool {
+        if let Some(null) = &self.null {
+            null == &t.to_nullable()
+        } else {
+            false
+        }
     }
 }
 
@@ -452,7 +487,7 @@ impl Data {
 
         let mut depth = 0;
         let mut some_input = None;
-        while let Some(event) = events.next() {
+        for event in events {
             match event? {
                 Characters(input) => some_input = Some(input),
                 StartElement { .. } => depth += 1,
@@ -484,7 +519,7 @@ impl Data {
                 }
             } else {
                 return Err(Error::CannotParse {
-                    got: format!("No input defined in STREAM!"),
+                    got: "No input defined in STREAM!".to_owned(),
                     target: "BINARY > STREAM",
                 });
             },
@@ -497,7 +532,6 @@ impl Data {
         };
 
         let mut bytes = Cursor::new(bytes);
-        println!("{:?}", bytes);
         let mut data = Data::default();
         'end: loop {
             let mut row = Row::default();
@@ -508,7 +542,6 @@ impl Data {
                 } else {
                     match bytes.read_i32::<BigEndian>() {
                         Ok(len) => {
-                            println!("Length: {}", len);
                             assert!(len >= 0, "Length must bust be positive");
                             len as usize
                         }
@@ -542,7 +575,8 @@ impl Data {
                             .read_i32_into::<BigEndian>(&mut buf)
                             .expect("No read error");
                         for int in buf {
-                            cell.v.push(DataValue::Integer32(int));
+                            let some_int = if field.is_null(int) { None } else { Some(int) };
+                            cell.v.push(DataValue::Integer32(some_int));
                         }
                     }
                     DataType::Float32 => {
@@ -700,35 +734,6 @@ impl FromStr for XType {
 impl NullableDataValue {
     fn parse(datatype: DataType, s: &str) -> Result<Self, Error> {
         match datatype {
-            DataType::Byte => {
-                let b = s.parse().map_err(|_| Error::CannotParse {
-                    got: s.to_owned(),
-                    target: "null",
-                })?;
-                Ok(NullableDataValue::Byte(b))
-            }
-            DataType::Character => {
-                let chars = s.as_bytes();
-                if !chars.is_empty() {
-                    Ok(NullableDataValue::Character(chars[0]))
-                } else {
-                    Err(Error::CannotParse {
-                        got: s.to_owned(),
-                        target: "null",
-                    })
-                }
-            }
-            DataType::UnicodeCharacter => {
-                let mut chars = s.chars();
-                if let Some(c) = chars.next() {
-                    Ok(NullableDataValue::UnicodeCharacter(c))
-                } else {
-                    Err(Error::CannotParse {
-                        got: s.to_owned(),
-                        target: "null",
-                    })
-                }
-            }
             DataType::Integer16 => {
                 let int = s.parse().map_err(|_| Error::CannotParse {
                     got: s.to_owned(),
