@@ -115,9 +115,20 @@ struct Row {
     cells: Vec<Cell>,
 }
 
-#[derive(Debug, Clone, Default)]
-struct Cell {
-    v: Vec<DataValue>,
+#[derive(Debug, Clone)]
+enum Cell {
+    Logical(Vec<Option<bool>>),
+    Bit(Vec<bool>),
+    Byte(Vec<u8>),
+    Character(String),
+    UnicodeCharacter(String),
+    Integer16(Vec<Option<i16>>),
+    Integer32(Vec<Option<i32>>),
+    Integer64(Vec<Option<i64>>),
+    Float32(Vec<f32>),
+    Float64(Vec<f64>),
+    Complex32(Vec<(f32, f32)>),
+    Complex64(Vec<(f64, f64)>),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -544,7 +555,7 @@ impl Data {
         'end: loop {
             let mut row = Row::default();
             for field in fields {
-                let mut cell = Cell::default();
+                let cell;
                 let len = if let Some(len) = field.len() {
                     len
                 } else {
@@ -563,47 +574,40 @@ impl Data {
                     DataType::Byte => {
                         let mut buf = vec![0; len];
                         bytes.read_exact(&mut buf).expect("No read error");
-                        for b in buf {
-                            cell.v.push(DataValue::Byte(b));
-                        }
+                        cell = Cell::Byte(buf)
                     }
                     DataType::Character => {
                         let mut buf = vec![0; len];
                         bytes.read_exact(&mut buf).expect("No read error");
-                        for b in buf {
-                            if b == 0 {
-                                break;
-                            }
-                            cell.v.push(DataValue::Character(b as char));
+                        if let Some(last) = buf.iter().position(|b| *b == 0) {
+                            buf.truncate(last);
                         }
+                        cell = Cell::Character(String::from_utf8_lossy(&buf).to_string())
                     }
                     DataType::Integer32 => {
                         let mut buf = vec![0; len];
                         bytes
                             .read_i32_into::<BigEndian>(&mut buf)
                             .expect("No read error");
-                        for int in buf {
-                            let some_int = if field.is_null(int) { None } else { Some(int) };
-                            cell.v.push(DataValue::Integer32(some_int));
-                        }
+                        cell = Cell::Integer32(
+                            buf.into_iter()
+                                .map(|int| if field.is_null(int) { None } else { Some(int) })
+                                .collect(),
+                        )
                     }
                     DataType::Float32 => {
                         let mut buf = vec![0.0; len];
                         bytes
                             .read_f32_into::<BigEndian>(&mut buf)
                             .expect("No read error");
-                        for f in buf {
-                            cell.v.push(DataValue::Float32(f));
-                        }
+                        cell = Cell::Float32(buf)
                     }
                     DataType::Float64 => {
                         let mut buf = vec![0.0; len];
                         bytes
                             .read_f64_into::<BigEndian>(&mut buf)
                             .expect("No read error");
-                        for f in buf {
-                            cell.v.push(DataValue::Float64(f));
-                        }
+                        cell = Cell::Float64(buf)
                     }
                     e => unimplemented!("{:?}", e),
                 }
