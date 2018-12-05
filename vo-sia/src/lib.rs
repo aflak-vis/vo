@@ -128,6 +128,39 @@ pub struct SIAResults {
     table: VOTable,
 }
 
+impl SIAResults {
+    pub fn records(&self) -> impl Iterator<Item = SIARecord<'_>> {
+        self.table
+            .resources()
+            .iter()
+            .map(|resource| {
+                resource
+                    .tables()
+                    .iter()
+                    .filter(|table| table.rows().is_some())
+                    .map(|table| table.rows().unwrap().map(|row| SIARecord { row }))
+                    .flatten()
+            }).flatten()
+    }
+}
+
+pub struct SIARecord<'a> {
+    row: vo_table::RowRef<'a>,
+}
+
+impl<'a> SIARecord<'a> {
+    pub fn acref(&self) -> Option<&str> {
+        self.row
+            .get_by_ucd("VOX:Image_AccessReference")
+            .and_then(|cell| match cell {
+                vo_table::Cell::Character(link) | vo_table::Cell::UnicodeCharacter(link) => {
+                    Some(link.as_ref())
+                }
+                _ => None,
+            })
+    }
+}
+
 #[derive(Debug)]
 pub enum Error {
     Hyper(hyper::Error),
