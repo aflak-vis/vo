@@ -98,12 +98,12 @@ impl<'a, 'k> SiaQuery<'a, 'k> {
             .get(uri)
             .and_then(|res| res.into_body().concat2())
             .map_err(Error::Hyper)
-            .map(|body| {
+            .and_then(|body| {
                 use std::io::Cursor;
                 let read = Cursor::new(body);
-                SIAResults {
-                    table: vo_table::parse(read).unwrap(),
-                }
+                vo_table::parse(read)
+                    .map(|table| SIAResults { table })
+                    .map_err(Error::VOTable)
             })
     }
 
@@ -131,4 +131,5 @@ pub struct SIAResults {
 #[derive(Debug)]
 pub enum Error {
     Hyper(hyper::Error),
+    VOTable(vo_table::Error),
 }

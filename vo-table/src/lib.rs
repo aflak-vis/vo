@@ -358,7 +358,7 @@ impl Field {
                         Ok(width) => width,
                         Err(e) => {
                             return Err(Error::CannotParseAttribute {
-                                e: Box::new(e),
+                                e,
                                 attribute: "width",
                             })
                         }
@@ -651,7 +651,7 @@ pub enum Error {
         tag: &'static str,
     },
     CannotParseAttribute {
-        e: Box<error::Error>,
+        e: ::std::num::ParseIntError,
         attribute: &'static str,
     },
     CannotParse {
