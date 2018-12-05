@@ -123,7 +123,7 @@ impl<'a, 'k> SiaQuery<'a, 'k> {
 
     pub fn execute_sync(&self) -> Result<SIAResults, Error> {
         let mut runtime = tokio::runtime::Runtime::new()
-            .map_err(|e| Error::IoError(e, "Could not initialize a Tokio runtime."))?;
+            .map_err(|e| Error::RuntimeError(e, "Could not initialize a Tokio runtime."))?;
         runtime.block_on(self.execute())
     }
 
