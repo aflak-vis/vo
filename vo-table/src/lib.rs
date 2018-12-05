@@ -3,6 +3,7 @@ extern crate byteorder;
 extern crate xml;
 
 use std::io::{Cursor, Read};
+use std::num;
 use std::str::FromStr;
 
 use byteorder::{BigEndian, ReadBytesExt};
@@ -340,7 +341,7 @@ impl Field {
                     field.width = Some(match FromStr::from_str(&value) {
                         Ok(width) => width,
                         Err(e) => {
-                            return Err(Error::CannotParseAttribute {
+                            return Err(Error::CannotParseIntAttribute {
                                 e,
                                 attribute: "width",
                             })
@@ -633,8 +634,8 @@ pub enum Error {
     ContentNotFound {
         tag: &'static str,
     },
-    CannotParseAttribute {
-        e: ::std::num::ParseIntError,
+    CannotParseIntAttribute {
+        e: num::ParseIntError,
         attribute: &'static str,
     },
     CannotParse {
