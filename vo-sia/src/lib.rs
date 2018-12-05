@@ -171,7 +171,7 @@ impl SIAResults {
 }
 
 pub struct SIARecord<'a> {
-    row: vo_table::RowRef<'a>,
+    row: vo_table::Row<'a>,
 }
 
 impl<'a> SIARecord<'a> {

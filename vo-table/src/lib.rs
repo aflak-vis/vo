@@ -309,20 +309,20 @@ impl Table {
         Ok(table)
     }
 
-    pub fn rows(&self) -> Option<impl Iterator<Item = RowRef<'_>>> {
+    pub fn rows(&self) -> Option<impl Iterator<Item = Row<'_>>> {
         let fields = &self.fields;
         self.data
             .as_ref()
-            .map(|data| data.rows.iter().map(move |row| RowRef { fields, row }))
+            .map(|data| data.rows.iter().map(move |row| Row { fields, row }))
     }
 }
 
-pub struct RowRef<'a> {
+pub struct Row<'a> {
     fields: &'a [Field],
     row: &'a OwnedRow,
 }
 
-impl<'a> RowRef<'a> {
+impl<'a> Row<'a> {
     pub fn get_by_ucd(&self, ucd: &str) -> Option<&Cell> {
         for (cell, field) in self.row.cells.iter().zip(self.fields) {
             if let Some(check_ucd) = &field.ucd {
