@@ -4,6 +4,7 @@ extern crate vo_table;
 
 use hyper::rt::{Future, Stream};
 use hyper::Client;
+use vo_table::VOTable;
 
 #[derive(Debug)]
 pub struct SiaService<'a> {
@@ -90,18 +91,19 @@ pub enum Verbosity {
 }
 
 impl<'a, 'k> SiaQuery<'a, 'k> {
-    pub fn execute(
-        &self,
-    ) -> impl Future<Item = Result<vo_table::VOTable, vo_table::Error>, Error = hyper::Error> {
+    pub fn execute(&self) -> impl Future<Item = SIAResults, Error = Error> {
         let client = Client::new();
         let uri = self.query_url().parse().unwrap();
         client
             .get(uri)
             .and_then(|res| res.into_body().concat2())
+            .map_err(Error::Hyper)
             .map(|body| {
                 use std::io::Cursor;
                 let read = Cursor::new(body);
-                vo_table::parse(read)
+                SIAResults {
+                    table: vo_table::parse(read).unwrap(),
+                }
             })
     }
 
@@ -119,4 +121,14 @@ impl<'a, 'k> SiaQuery<'a, 'k> {
             .finish();
         format!("{}?{}", self.base_url, query_string)
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct SIAResults {
+    table: VOTable,
+}
+
+#[derive(Debug)]
+pub enum Error {
+    Hyper(hyper::Error),
 }
