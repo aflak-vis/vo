@@ -1,6 +1,9 @@
-pub extern crate hyper;
+extern crate hyper;
+extern crate tokio;
 extern crate url;
 extern crate vo_table;
+
+use std::io;
 
 use hyper::rt::{Future, Stream};
 use hyper::Client;
@@ -116,6 +119,12 @@ impl<'a, 'k> SiaQuery<'a, 'k> {
             })
     }
 
+    pub fn execute_sync(&self) -> Result<SIAResults, Error> {
+        let mut runtime = tokio::runtime::Runtime::new()
+            .map_err(|e| Error::IoError(e, "Could not initialize a Tokio runtime."))?;
+        runtime.block_on(self.execute())
+    }
+
     fn query_url(&self) -> String {
         let pos_val = format!("{},{}", self.pos.0, self.pos.1);
         let size_val = format!("{},{}", self.size.0, self.size.1);
@@ -182,4 +191,5 @@ impl<'a> SIARecord<'a> {
 pub enum Error {
     Hyper(hyper::Error),
     VOTable(vo_table::Error),
+    IoError(io::Error, &'static str),
 }
