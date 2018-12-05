@@ -1,5 +1,9 @@
-extern crate hyper;
+pub extern crate hyper;
 extern crate url;
+extern crate vo_table;
+
+use hyper::rt::{Future, Stream};
+use hyper::Client;
 
 #[derive(Debug)]
 pub struct SiaService<'a> {
@@ -86,28 +90,19 @@ pub enum Verbosity {
 }
 
 impl<'a, 'k> SiaQuery<'a, 'k> {
-    pub fn execute(&self) {
-        use hyper::rt::{self, Future, Stream};
-        use hyper::Client;
-        use std::io::{self, Write};
-        rt::run({
-            let client = Client::new();
-            let uri = self.query_url().parse().unwrap();
-            client
-                .get(uri)
-                .and_then(|res| {
-                    println!("Response: {}", res.status());
-                    res.into_body()
-                        // Body is a stream, so as each chunk arrives...
-                        .for_each(|chunk| {
-                            io::stdout()
-                                .write_all(&chunk)
-                                .map_err(|e| panic!("example expects stdout is open, error={}", e))
-                        })
-                }).map_err(|err| {
-                    println!("Error: {}", err);
-                })
-        });
+    pub fn execute(
+        &self,
+    ) -> impl Future<Item = Result<vo_table::VOTable, vo_table::Error>, Error = hyper::Error> {
+        let client = Client::new();
+        let uri = self.query_url().parse().unwrap();
+        client
+            .get(uri)
+            .and_then(|res| res.into_body().concat2())
+            .map(|body| {
+                use std::io::Cursor;
+                let read = Cursor::new(body);
+                vo_table::parse(read)
+            })
     }
 
     fn query_url(&self) -> String {

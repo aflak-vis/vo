@@ -8,3 +8,4 @@ license = "GPL-3.0-only"
 [dependencies]
 hyper = "0.12"
 url = "1"
+vo-table = { path = "../vo-table" }
