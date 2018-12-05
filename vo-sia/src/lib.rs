@@ -3,11 +3,13 @@ extern crate tokio;
 extern crate url;
 extern crate vo_table;
 
-use std::io;
+mod err;
 
 use hyper::rt::{Future, Stream};
 use hyper::Client;
 use vo_table::VOTable;
+
+pub use err::Error;
 
 #[derive(Debug)]
 pub struct SiaService<'a> {
@@ -185,11 +187,4 @@ impl<'a> SIARecord<'a> {
                 _ => None,
             })
     }
-}
-
-#[derive(Debug)]
-pub enum Error {
-    Hyper(hyper::Error),
-    VOTable(vo_table::Error),
-    IoError(io::Error, &'static str),
 }
