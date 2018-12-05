@@ -131,22 +131,6 @@ pub enum Cell {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-enum DataValue {
-    Logical(Option<bool>),
-    Bit(bool),
-    Byte(u8),
-    Character(char),
-    UnicodeCharacter(char),
-    Integer16(Option<i16>),
-    Integer32(Option<i32>),
-    Integer64(Option<i64>),
-    Float32(f32),
-    Float64(f64),
-    Complex32(f32, f32),
-    Complex64(f64, f64),
-}
-
-#[derive(Debug, Clone, PartialEq)]
 enum NullableDataValue {
     Integer16(i16),
     Integer32(i32),
