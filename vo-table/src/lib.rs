@@ -2,17 +2,20 @@ extern crate base64;
 extern crate byteorder;
 extern crate xml;
 
+mod err;
+
 use std::io::{Cursor, Read};
-use std::num;
 use std::str::FromStr;
 
 use byteorder::{BigEndian, ReadBytesExt};
 use xml::{
     attribute::OwnedAttribute,
     name::OwnedName,
-    reader::{self, Events, XmlEvent::*},
+    reader::{Events, XmlEvent::*},
     ParserConfig,
 };
+
+pub use err::Error;
 
 pub fn parse<R: Read>(r: R) -> Result<VOTable, Error> {
     VOTable::parse(r)
@@ -625,28 +628,6 @@ impl Data {
             data.rows.push(row);
         }
         Ok(data)
-    }
-}
-
-#[derive(Debug)]
-pub enum Error {
-    XmlReaderError(reader::Error),
-    ContentNotFound {
-        tag: &'static str,
-    },
-    CannotParseIntAttribute {
-        e: num::ParseIntError,
-        attribute: &'static str,
-    },
-    CannotParse {
-        got: String,
-        target: &'static str,
-    },
-}
-
-impl From<reader::Error> for Error {
-    fn from(e: reader::Error) -> Self {
-        Error::XmlReaderError(e)
     }
 }
 
