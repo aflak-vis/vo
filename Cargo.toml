@@ -6,6 +6,8 @@ description = "Virtual Observatory standard implementation"
 license = "GPL-3.0-only"
 
 [dependencies]
+vo-table = { path = "vo-table" }
+vo-sia = { path = "vo-sia" }
 
 [workspace]
 members = [
