@@ -195,6 +195,21 @@ impl VOTable {
     pub fn resources(&self) -> &[Resource] {
         &self.resources
     }
+
+    /// Iterate over all the tables in the VOTable, included nested ones.
+    pub fn tables(&self) -> impl Iterator<Item = &Table> {
+        self.resources
+            .iter()
+            .map(|resource| {
+                resource.tables().iter().chain(
+                    resource
+                        .children()
+                        .iter()
+                        .map(|child_resource| child_resource.tables())
+                        .flatten(),
+                )
+            }).flatten()
+    }
 }
 
 impl Description {
@@ -240,6 +255,10 @@ impl Resource {
 
     pub fn tables(&self) -> &[Table] {
         &self.tables
+    }
+
+    pub fn children(&self) -> &[Resource] {
+        &self.child_resources
     }
 }
 
