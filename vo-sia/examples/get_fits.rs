@@ -3,9 +3,7 @@ extern crate vo_sia;
 use vo_sia::SiaService;
 
 fn main() {
-    let query = SiaService::UNI_HEIDELBERG
-        .create_query((161.027341982576, -59.6844592879577))
-        .with_size((100.0, 100.0));
+    let query = SiaService::GAVO.create_query((98.168896625, 4.91167305556));
 
     match query.execute_sync() {
         Err(e) => eprintln!("Error: {:?}", e),
