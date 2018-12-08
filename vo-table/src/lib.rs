@@ -341,6 +341,28 @@ impl<'a> Row<'a> {
         }
         None
     }
+
+    pub fn get_by_id(&self, id: &str) -> Option<&Cell> {
+        for (cell, field) in self.row.cells.iter().zip(self.fields) {
+            if let Some(check_id) = &field.id {
+                if check_id == id {
+                    return Some(cell);
+                }
+            }
+        }
+        None
+    }
+
+    pub fn get_by_name(&self, name: &str) -> Option<&Cell> {
+        for (cell, field) in self.row.cells.iter().zip(self.fields) {
+            if let Some(check_name) = &field.name {
+                if check_name == name {
+                    return Some(cell);
+                }
+            }
+        }
+        None
+    }
 }
 
 impl Field {
