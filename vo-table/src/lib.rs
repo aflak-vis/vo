@@ -324,6 +324,7 @@ impl Table {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct Row<'a> {
     fields: &'a [Field],
     row: &'a OwnedRow,
