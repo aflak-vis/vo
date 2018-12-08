@@ -615,12 +615,34 @@ impl Data {
                         }
                         cell = Cell::Character(String::from_utf8_lossy(&buf).to_string())
                     }
+                    DataType::Integer16 => {
+                        let mut buf = vec![0; len];
+                        bytes
+                            .read_i16_into::<BigEndian>(&mut buf)
+                            .expect("No read error");
+                        cell = Cell::Integer16(
+                            buf.into_iter()
+                                .map(|int| if field.is_null(int) { None } else { Some(int) })
+                                .collect(),
+                        )
+                    }
                     DataType::Integer32 => {
                         let mut buf = vec![0; len];
                         bytes
                             .read_i32_into::<BigEndian>(&mut buf)
                             .expect("No read error");
                         cell = Cell::Integer32(
+                            buf.into_iter()
+                                .map(|int| if field.is_null(int) { None } else { Some(int) })
+                                .collect(),
+                        )
+                    }
+                    DataType::Integer64 => {
+                        let mut buf = vec![0; len];
+                        bytes
+                            .read_i64_into::<BigEndian>(&mut buf)
+                            .expect("No read error");
+                        cell = Cell::Integer64(
                             buf.into_iter()
                                 .map(|int| if field.is_null(int) { None } else { Some(int) })
                                 .collect(),
