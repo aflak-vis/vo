@@ -1,5 +1,8 @@
 extern crate futures;
 extern crate hyper;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
 extern crate tokio;
 extern crate url;
 extern crate vo_table;
@@ -12,7 +15,7 @@ use vo_table::VOTable;
 
 pub use err::Error;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SiaService<U> {
     url: U,
 }

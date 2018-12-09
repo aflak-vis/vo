@@ -9,5 +9,7 @@ license = "GPL-3.0-only"
 hyper = "0.12"
 tokio = "0.1"
 futures = "0.1"
+serde = "1.0"
+serde_derive = "1.0"
 url = "1"
 vo-table = { path = "../vo-table" }
