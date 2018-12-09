@@ -1,3 +1,4 @@
+extern crate futures;
 extern crate hyper;
 extern crate tokio;
 extern crate url;
@@ -11,7 +12,7 @@ use vo_table::VOTable;
 
 pub use err::Error;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct SiaService<U> {
     url: U,
 }
@@ -189,17 +190,22 @@ impl<'k> SiaQuery<'k> {
 
     pub fn execute(&self) -> impl Future<Item = SIAResults, Error = Error> {
         let client = Client::new();
-        let uri = self.query_url().parse().unwrap();
-        client
-            .get(uri)
-            .and_then(|res| res.into_body().concat2())
-            .map_err(Error::Hyper)
-            .and_then(|body| {
-                use std::io::Cursor;
-                let read = Cursor::new(body);
-                vo_table::parse(read)
-                    .map(|table| SIAResults { table })
-                    .map_err(Error::VOTable)
+
+        futures::future::result(self.query_url().parse::<hyper::Uri>())
+            .map_err(Error::InvalidUri)
+            .and_then(move |uri| {
+                client
+                    .get(uri)
+                    .and_then(|res| res.into_body().concat2())
+                    .map_err(Error::Hyper)
+                    .and_then(|body| {
+                        use std::io::Cursor;
+                        println!("{}", String::from_utf8_lossy(&body));
+                        let read = Cursor::new(body);
+                        vo_table::parse(read)
+                            .map(|table| SIAResults { table })
+                            .map_err(Error::VOTable)
+                    })
             })
     }
 
