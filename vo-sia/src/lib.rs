@@ -36,6 +36,14 @@ where
         SiaService { url }
     }
 
+    pub fn map<F, V>(self, mut f: F) -> SiaService<V>
+    where
+        F: FnMut(U) -> V,
+        V: ToString,
+    {
+        SiaService { url: f(self.url) }
+    }
+
     pub fn create_query<'k, P: Into<Pos>>(&self, pos: P) -> SiaQuery<'k> {
         SiaQuery {
             base_url: self.url.to_string(),
