@@ -4,6 +4,7 @@ extern crate xml;
 
 mod err;
 
+use std::fmt;
 use std::io::{Cursor, Read};
 use std::str::FromStr;
 
@@ -194,6 +195,18 @@ impl VOTable {
 
     pub fn resources(&self) -> &[Resource] {
         &self.resources
+    }
+
+    pub fn len(&self) -> usize {
+        let mut len = 0;
+        for table in self.tables() {
+            if let Some(rows) = table.rows() {
+                for _ in rows {
+                    len += 1;
+                }
+            }
+        }
+        len
     }
 
     /// Iterate over all the tables in the VOTable, included nested ones.
@@ -825,6 +838,72 @@ impl NullableDataValue {
                 got: format!("{} as {:?}", s, datatype),
                 target: "null",
             }),
+        }
+    }
+}
+
+impl fmt::Display for Cell {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use Cell::*;
+        fn format_slice<T, F>(slice: &[T], fmt: &mut fmt::Formatter, mut f: F) -> fmt::Result
+        where
+            F: FnMut(&T, &mut fmt::Formatter) -> fmt::Result,
+        {
+            match slice.len() {
+                0 => Ok(()),
+                1 => f(&slice[0], fmt),
+                _ => {
+                    for t in slice {
+                        write!(fmt, " ")?;
+                        f(t, fmt)?;
+                    }
+                    Ok(())
+                }
+            }
+        }
+        match self {
+            Logical(bools) => format_slice(bools, f, |b, f| match b {
+                Some(true) => write!(f, "T"),
+                Some(false) => write!(f, "F"),
+                None => write!(f, "?"),
+            }),
+            Bit(bools) => {
+                for b in bools {
+                    if *b {
+                        write!(f, "1")?;
+                    } else {
+                        write!(f, "0")?;
+                    }
+                }
+                Ok(())
+            }
+            Byte(bytes) => format_slice(bytes, f, |b, f| write!(f, "{:x}", b)),
+            Character(string) | UnicodeCharacter(string) => write!(f, "{}", string),
+            Integer16(ints) => format_slice(ints, f, |i, f| {
+                if let Some(i) = i {
+                    write!(f, "{}", i)
+                } else {
+                    write!(f, "NaN")
+                }
+            }),
+            Integer32(ints) => format_slice(ints, f, |i, f| {
+                if let Some(i) = i {
+                    write!(f, "{}", i)
+                } else {
+                    write!(f, "NaN")
+                }
+            }),
+            Integer64(ints) => format_slice(ints, f, |i, f| {
+                if let Some(i) = i {
+                    write!(f, "{}", i)
+                } else {
+                    write!(f, "NaN")
+                }
+            }),
+            Float32(floats) => format_slice(floats, f, |float, f| write!(f, "{}", float)),
+            Float64(floats) => format_slice(floats, f, |float, f| write!(f, "{}", float)),
+            Complex32(com) => format_slice(com, f, |com, f| write!(f, "{} + {}.i", com.0, com.1)),
+            Complex64(com) => format_slice(com, f, |com, f| write!(f, "{} + {}.i", com.0, com.1)),
         }
     }
 }
