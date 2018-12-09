@@ -12,28 +12,33 @@ use vo_table::VOTable;
 pub use err::Error;
 
 #[derive(Debug, Copy, Clone)]
-pub struct SiaService<'a> {
-    url: &'a str,
+pub struct SiaService<U> {
+    url: U,
 }
 
-impl<'a> SiaService<'a> {
-    pub const CADC: SiaService<'static> = SiaService {
+impl SiaService<&'static str> {
+    pub const CADC: SiaService<&'static str> = SiaService {
         url: "http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/sia/v2query",
     };
-    pub const GAVO: SiaService<'static> = SiaService {
+    pub const GAVO: SiaService<&'static str> = SiaService {
         url: "http://dc.zah.uni-heidelberg.de/__system__/siap2/sitewide/siap2.xml",
     };
-    pub const GAVO_OLD_V1: SiaService<'static> = SiaService {
+    pub const GAVO_OLD_V1: SiaService<&'static str> = SiaService {
         url: "http://dc.zah.uni-heidelberg.de/hppunion/q/im/siap.xml",
     };
+}
 
-    pub fn new(url: &str) -> SiaService<'_> {
+impl<U> SiaService<U>
+where
+    U: ToString,
+{
+    pub fn new(url: U) -> SiaService<U> {
         SiaService { url }
     }
 
-    pub fn create_query<'k, P: Into<Pos>>(&self, pos: P) -> SiaQuery<'a, 'k> {
+    pub fn create_query<'k, P: Into<Pos>>(&self, pos: P) -> SiaQuery<'k> {
         SiaQuery {
-            base_url: self.url,
+            base_url: self.url.to_string(),
             pos: pos.into(),
             // size: (1.0, 1.0),
             format: None,
@@ -45,8 +50,8 @@ impl<'a> SiaService<'a> {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct SiaQuery<'a, 'k> {
-    base_url: &'a str,
+pub struct SiaQuery<'k> {
+    base_url: String,
     pos: Pos,
     // size: (f64, f64),
     format: Option<Format>,
@@ -168,7 +173,7 @@ pub enum Verbosity {
     VVV = 3,
 }
 
-impl<'a, 'k> SiaQuery<'a, 'k> {
+impl<'k> SiaQuery<'k> {
     pub fn with_format(mut self, format: Format) -> Self {
         self.format = Some(format);
         self
