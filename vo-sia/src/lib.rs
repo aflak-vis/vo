@@ -11,7 +11,7 @@ use vo_table::VOTable;
 
 pub use err::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct SiaService<'a> {
     url: &'a str,
 }
@@ -36,7 +36,7 @@ impl<'a> SiaService<'a> {
             base_url: self.url,
             pos: pos.into(),
             // size: (1.0, 1.0),
-            // format: Format::All,
+            format: None,
             // intersect: Intersect::Overlaps,
             // verbosity: Verbosity::VV,
             keywords: vec![],
@@ -49,7 +49,7 @@ pub struct SiaQuery<'a, 'k> {
     base_url: &'a str,
     pos: Pos,
     // size: (f64, f64),
-    // format: Format,
+    format: Option<Format>,
     // intersect: Intersect,
     // verbosity: Verbosity,
     keywords: Vec<(&'k str, &'k str)>,
@@ -120,23 +120,23 @@ impl PolygonPos {
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Format {
-    All,
-    Graphic,
-    Metadata,
+    // All,
+    // Graphic,
+    // Metadata,
     Fits,
-    Jpeg,
-    Png,
+    // Jpeg,
+    // Png,
 }
 
 impl From<Format> for &'static str {
     fn from(format: Format) -> &'static str {
         match format {
-            Format::All => "ALL",
-            Format::Graphic => "GRAPHIC",
-            Format::Metadata => "METADATA",
-            Format::Fits => "APPLICATION/FITS",
-            Format::Jpeg => "IMAGE/JPEG",
-            Format::Png => "IMAGE/PNG",
+            // Format::All => "ALL",
+            // Format::Graphic => "GRAPHIC",
+            // Format::Metadata => "METADATA",
+            Format::Fits => "application/fits",
+            // Format::Jpeg => "IMAGE/JPEG",
+            // Format::Png => "IMAGE/PNG",
         }
     }
 }
@@ -169,6 +169,11 @@ pub enum Verbosity {
 }
 
 impl<'a, 'k> SiaQuery<'a, 'k> {
+    pub fn with_format(mut self, format: Format) -> Self {
+        self.format = Some(format);
+        self
+    }
+
     pub fn execute(&self) -> impl Future<Item = SIAResults, Error = Error> {
         let client = Client::new();
         let uri = self.query_url().parse().unwrap();
@@ -195,14 +200,22 @@ impl<'a, 'k> SiaQuery<'a, 'k> {
         let pos_val = self.pos.serialize();
         // let size_val = format!("{},{}", self.size.0, self.size.1);
         // let verb_val = format!("{}", self.verbosity as usize);
-        let query_string = url::form_urlencoded::Serializer::new(String::new())
-            .append_pair("POS", &pos_val)
-            // .append_pair("SIZE", &size_val)
-            // .append_pair("FORMAT", self.format.into())
-            // .append_pair("INTERSECT", self.intersect.into())
-            // .append_pair("VERB", &verb_val)
-            .extend_pairs(&self.keywords)
-            .finish();
+        let query_string = {
+            let mut serializer = url::form_urlencoded::Serializer::new(String::new());
+
+            serializer
+                .append_pair("POS", &pos_val)
+                // .append_pair("SIZE", &size_val)
+                // .append_pair("INTERSECT", self.intersect.into())
+                // .append_pair("VERB", &verb_val)
+                .extend_pairs(&self.keywords);
+
+            if let Some(format) = self.format {
+                serializer.append_pair("FORMAT", format.into());
+            }
+
+            serializer.finish()
+        };
         format!("{}?{}", self.base_url, query_string)
     }
 }
@@ -242,7 +255,7 @@ pub struct SIARecord<'a> {
 }
 
 impl<'a> SIARecord<'a> {
-    pub fn acref(&self) -> Option<&str> {
+    pub fn access_url(&self) -> Option<&str> {
         self.row
             .get_by_ucd("VOX:Image_AccessReference")
             .or_else(|| self.row.get_by_id("access_url"))
@@ -251,6 +264,30 @@ impl<'a> SIARecord<'a> {
                 vo_table::Cell::Character(link) | vo_table::Cell::UnicodeCharacter(link) => {
                     Some(link.as_ref())
                 }
+                _ => None,
+            })
+    }
+
+    pub fn access_format(&self) -> Option<&str> {
+        self.row
+            .get_by_id("access_format")
+            .or_else(|| self.row.get_by_name("access_format"))
+            .and_then(|cell| match cell {
+                vo_table::Cell::Character(link) | vo_table::Cell::UnicodeCharacter(link) => {
+                    Some(link.as_ref())
+                }
+                _ => None,
+            })
+    }
+
+    pub fn access_estsize(&self) -> Option<i64> {
+        self.row
+            .get_by_id("access_estsize")
+            .or_else(|| self.row.get_by_name("access_estsize"))
+            .and_then(|cell| match cell {
+                vo_table::Cell::Integer16(size) => size[0].map(|int| int as i64),
+                vo_table::Cell::Integer32(size) => size[0].map(|int| int as i64),
+                vo_table::Cell::Integer64(size) => size[0],
                 _ => None,
             })
     }
